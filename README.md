@@ -85,6 +85,7 @@ cd /path/to/Geoextractor
 ```
 
 ### Run with CINT ROOT 
+Geoextractor can also be run directly by CINT ROOT.
 First the shell variable $MC_DIR should be set to the directory of the .ROOT MC files from where the hits should be extracted. (The files should be simulated in the same detector- and matrixfile configuration as the .GDML file.) 
 ```
 cd /path/to/MCSimulations
@@ -106,7 +107,7 @@ The Output will be saved in the directories:
 * /Output/json
 * /Output/siggen
 
-This is a fast and easy method to get the results.
+This is an easy method to get results.
 
 ### Producing New .GDML Files
 If a different arrangement or detector- and matrixfile combination is desired, a new gdml file can be produced with a GDML macro provided in the working directory: 'gdmlextractor.mac'. It needs to be edited by changing only three lines to the appropriate new file names:
@@ -132,8 +133,8 @@ root Geoextractor.cxx+(1)
 ```
 This sets the checkGDML option to true and enables you to look at a OGL rendering of the GDML file.
 
-## File formatting:
-The ADL and SIGGEN file structure for the detector geometries/parameters are given by the individual programs. The JSON formatting is created for Geoextractor and looks as follows:
+## File formatting
+The ADL and SIGGEN file structure for the detector geometries/parameters are given by the individual programs. The JSON formatting is created for Geoextractor and looks as follows (here for GD00A and two hits):
 ```
 { 
     "detector": "GD00A",
@@ -154,6 +155,13 @@ The ADL and SIGGEN file structure for the detector geometries/parameters are giv
         ]
 }
 ``` 
+
+## Plans
+* Unify JSON usage for hits read-in for SIGGEN and ADL.
+* Work out optimal file formatting.
+* SSE/MSE identification and categorisation inside JSON.
+* Proper geometry extraction for Coax as well. (Currently only verified with BEGes)
+* Bugtesting.
 
 ### Prerequisites
 Geoextractor:
