@@ -1,0 +1,38 @@
+# ================================================ #
+# GDML Extractor Macro                             #
+# For Geoextractor by Michael Miloradovic          #
+# May 2017                                         #
+# ================================================ #
+
+### Instructions: Edit Geometry and Matrix files to fit your .GDML extraction ###
+/MG/manager/mglog trace
+/MG/manager/seedWithDevRandom
+/MG/processes/realm BBdecay
+/MG/processes/lowenergy true
+/MG/processes/useNoHadPhysics true
+
+### Set Geometry ###
+/MG/geometry/detector GerdaArray
+/MG/geometry/database false
+/MG/geometry/detector/general/depth 0 cm
+/MG/geometry/lock/type PhaseII_DN500
+/MG/geometry/lock/dn500/n_strings 7
+/MG/geometry/lock/dn500/string_distance 11.0 cm
+
+### Geometry and Matrix files ###
+### Edit these to fit your .GDML extraction ###
+/MG/geometry/detector/geometryfile geometry_PhaseII_FCCD_growth.dat
+/MG/geometry/detector/matrixfile matrix_phase_ii_StatusDec2015_pos_vis.dat
+
+###Additional commands ###
+/MG/geometry/general/constructsupport true
+/MG/geometry/general/constructcabling true
+/MG/geometry/detector/individualzposofdetectors true
+/MG/geometry/detector/crystal/reverse true
+/MG/geometry/cherenkov -1
+
+/run/initialize
+
+### Change outputName to desired outputName: .gdml is automatically appended ###
+/MG/geometry/GDML/outputName extractedgdml
+/MG/geometry/GDML/write
