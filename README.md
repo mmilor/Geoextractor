@@ -155,6 +155,15 @@ The ADL and SIGGEN file structure for the detector geometries/parameters are giv
         ]
 }
 ``` 
+* **detcenter_xpos/ypos/zpos** describe the absolute position of the detector center in the MaGe coordinate system.
+* **detdimx/y/z** describe the dimensions of the detector in each direction from the center point. Point contact position thus is detcenter_xpos, detcenter_ypos, detcenter_zpos-detdimz. Inverted detectors: " " detcenter_zpos+detdimz.
+* xtal_radius, length etc are described here: radware.phy.ornl.gov/MJ/mjd_siggen/fieldgen_geometry.pdf
+* **xpos, ypos, zpos** are the coordinates of each hit already transformed into the detector frame with the point contact being (0,0,0). (Inverted detectors are already taken into consideration here).
+
+To be added:
+* inverted (already used/determined/known, but not yet written into JSON file)
+* coax Li_thickness faulty atm, needs to be fixed
+* ...
 
 ## Plans
 * Unify JSON usage for hits read-in for SIGGEN and ADL.
