@@ -57,7 +57,8 @@ Options:
 *	**-s, --siggen PATH**:	Specify output path for SIGGEN files. Default: ./Output/siggen
 *	**-g, --gdml PATH**:	Specify path to GDML file. Default: ./defaultgdml.gdml
 *	**-d, --detsettings PATH**:	Specify path to Detector Settings file. Default: ./detsettings.txt
-*	**-x, --maxhits**: INT	Limit amount of hits per detector to be extracted and written to file to a fixed number. Default: No limit.
+*	**-x, --maxhits INT**:	Limit amount of hits per detector to be extracted and written to file to a fixed number. Default: No limit.
+* **v, --vishits STRING**: Visualise hit extraction with condition set by STRING. Example to show only events in detector 33: --v hits_iddet==33
 *	**-n, --nohits**: 	Skip all hit extraction, only extract geometry.
 * **-c, --checkgdml**: 	Visualise .GDML file with OGL drivers. Best to use: root Geoextractor.cxx+(1)
 *	**-h, --help**:		Show help message
@@ -110,6 +111,7 @@ The Output will be saved in the directories:
 This is an easy method to get results.
 
 ### Producing New .GDML Files
+The GDML file is a file that stores the geometry from MaGe into a compact format, such that we do not depend directly MaGe anymore, once we have extracted the geometry. Read through the chapter **Usage** to learn more.
 If a different arrangement or detector- and matrixfile combination is desired, a new gdml file can be produced with a GDML macro provided in the working directory: 'gdmlextractor.mac'. It needs to be edited by changing only three lines to the appropriate new file names:
 ```
 In gdmlextractor.mac:
@@ -190,3 +192,82 @@ Michael Miloradovic
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+
+
+
+----------------------------------
+# Exercise
+Learn how to use Geoextractor combined with ADL in this exercise to produce pulse shape simulations from MaGe simulations.
+
+**Preparation**: Install & compile Geoextractor using this README starting from the section **Install**.
+
+#### 1.) Extract the GERDA geometry
+First, we will take a look at the GERDA geometry and extract it from the .GDML file. For this exercise we will use the provided .GDML file in the parent directory. (To learn how and why to produce new .GDML files, check out the chapter **Producing New .GDML Files**.)
+If we want to extract the GERDA geometry and nothing else, we can invoke Geoextractor in the following way: 
+```
+./Geoextractor --nohits
+```
+Read through the terminal output, showing:
+* Detector name and channel
+* Node in GDML
+* Dimensions from the coordinate center of a detector (in cm)
+* Shape 
+* Coordinate center in the absolute MaGe frame (in cm)
+* Point contact center in the absolute MaGe frame (in cm) (includes inversion of detector)
+* Where the information is stored in
+* Active volume fiducial cut
+
+All this information is then used to create output files stored in the Output directory. Navigate to the Output directory and you see three directories:
+* adl/ConfigFiles
+  * ADL geometry files are generated automatically: SETUP and DET files containing detector geometry information
+* json
+  * .JSON files which contain detector geometry information (and later on hit information)
+* siggen
+  * .config files for SIGGEN automatically generated.
+These are all the output files which are used then directly in ADL & siggen. In the future other programs can make use of the general extraction in the .json format.
+
+Since the detector geometries are output into native ADL & siggen formats, the fields can be simulated directly with these programs for each detector.
+
+(If you are interested to also visualise the GDML, follow the GDML visualisation chapter in this README.)
+
+Let's move on to simulated events that store energy inside the germanium detector via interactions (hits), how they are simulated with MaGe, and how they can be transferred to pulse shape simulation software (ADL & siggen) via Geoextractor.
+
+
+#### 2.) Monte Carlo simulations from MaGe
+MaGe receives a macro in which you declare: 
+* geometryfile (dimensions of detectors, dead layer etc.).
+* matrixfile (arrangement of detectors on string).
+* What interaction to simulate and originating in what volume.
+
+In this exercise, this simulation was already performed and the .ROOT files of the simulation are stored in the Geoextractor/Exercise/ folder.
+The details:
+* geometryfile: geometry_PhaseII_FCCD_growth.dat 
+* matrixfile: matrix_phase_ii_StatusDec2015_pos.dat
+* Ar39 decay in a sphere around the whole array.
+
+The .ROOT files are not compatible with the pulse shape simulation softwares ADL or SIGGEN, so we need Geoextractor to do its magic.
+To tell Geoextractor what files to use, you can navigate to the Exercise folder and declare in the same way as for Background Model software:
+```
+export MC_DIR=$(pwd)
+```
+And then navigate back to the Geoextractor parent folder.
+Geoextractor will then use all .ROOT files in your MC_DIR and merge them to TChains to analyse. Of course there is also the option to use -m, --mcdir as described in the **Usage** part of the README.
+
+#### 3.) Hits Visualisation with Geoextractor
+In the Geoextractor directory (/Geoextractor/), run Geoextractor to visualise the simulation directly from the root files. Use the -v or --vishits command to do this:
+```
+./Geoextractor --vishits
+```
+You will see all hits in all 40 GERDA detectors visualised. Let's reduce it to just one detector, for example **detector** with MaGe channel number 33: GD00A. (Remember that for GERDA the data channels and the MaGe channels do not coincide. You can either check the GERDA wiki or the detsettings.txt file to check which channel is which.)
+To show only the hits in **GD00A - detector 33** , use:
+```
+./Geoextractor --vishits hits_iddet==33
+```
+Any string can be used that selects events.
+
+#### 4.) Hit extraction with Geoextractor
+Finally, we want to extract the hits and automatically transform them into the detector frames such that we can use them directly in ADL & siggen formats. Call Geoextractor with the following command:
+```
+./Geoextractor
+```
+You notice that for each detector there is additional number output given, expressing the hits_xpos, hits_ypos, hits_zpos transformed to the point contact frame and deposited energy. All this information and more is stored in the .JSON files in the /Geoextractor/Output/json folder (see chapter **File formatting** for an example). This hit position and energy information, together with the automatically extracted detector geometry can be used directly to simulate fields and the induced pulse shapes in ADL & SIGGEN.
