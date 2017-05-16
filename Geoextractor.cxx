@@ -36,7 +36,7 @@ using namespace std;
 
 
 //Function to search through GDML node levels to find nodes matching germanium detectors. Then extract all information about them. This is run iteratively.
-void print_node(TGeoNode *node, string path, int& MaGeChannelNumIterator, vector<string> convDetNameSortedMC, vector<int> convIsGrooveOnTopSortedMC, vector<int> convIsBEGeSortedMC, vector<int> convIsPSSSortedMC, vector<double> convTaperLengthSortedMC, vector<double> convTaperWidthSortedMC, vector<double> convImpurityZSortedMC, vector<double> convImpurityGradSortedMC, vector<int> convHVSortedMC, vector<double> convFCCD, string jsonOutputPath, string adlOutputPath, string siggenOutputPath, ofstream & jsonOutputFile, ofstream & siggenOutputFile, ofstream & adlOutputFile, ofstream & hitsOutputFile, ofstream & hitsADLOutputFile, TChain * fTree, int maxHits, int useHits)
+void print_node(TGeoNode *node, string path, int& MaGeChannelNumIterator, vector<string> convDetNameSortedMC, vector<int> convIsGrooveOnTopSortedMC, vector<int> convIsBEGeSortedMC, vector<int> convIsPSSSortedMC, vector<double> convTaperLengthSortedMC, vector<double> convTaperWidthSortedMC, vector<double> convImpurityZSortedMC, vector<double> convImpurityGradSortedMC, vector<int> convHVSortedMC, vector<double> convFCCD, string jsonOutputPath, string adlOutputPath, string siggenOutputPath, ofstream & jsonOutputFile, ofstream & siggenOutputFile, ofstream & adlOutputFile, ofstream & hitsOutputFile, ofstream & hitsADLOutputFile, TChain * fTree, int maxHits, int useHits, int isVisHitsEnabled, string visHitsCond)
 {
     string str = "";
     string convString = "debug";
@@ -737,78 +737,87 @@ void print_node(TGeoNode *node, string path, int& MaGeChannelNumIterator, vector
 
 
 
-                                //-------------------- 3D SCATTER PLOTS TO CHECK GEOMETRY -------------
-                                /*
+                                //-------------------- 3D SCATTER PLOTS TO CHECK GEOMETRY ------------- Could be used for detectorwise Visualisation
+/*
+                                if(isVisHitsEnabled == 1){
+                                    //TApplication *app = new TApplication("App", &argc, argv )
+                                    TApplication *app = new TApplication("App", 0, 0 );  
+                                    //TApplication *app = new TApplication("App", appargc, appargv );
+                                    //cout << "3D SCATTER PLOT OF DET/CHAN: " << convDetNameSortedMC[MaGeChannelNumIterator] << "/" << MaGeChannelNumIterator << endl;
+                                    //char const *condCanvasName = condTempCanvasName.c_str();
+                                    TCanvas *cX = new TCanvas("Visualised Hits");
+                                    fTree->SetMarkerStyle(6);
 
-                                cout << "3D SCATTER PLOT OF DET/CHAN: " << convDetNameSortedMC[MaGeChannelNumIterator] << "/" << MaGeChannelNumIterator << endl;
-                                fTree->SetMarkerStyle(6);
+                                    fTree->Draw("hits_zpos:hits_ypos:hits_xpos",visHitsCond.c_str());
+                                    cX->Update();
+                                    app->Run();
+                                    
+                                    if(isCurrentQActiveV == 0){
+                                    //----------------------------------------- Hit position 3D plot: ------------------------------------
+                                    //CANVAS NAMING ITERATION for 3D PLOT:
+                                    condTempStream.str(string());
+                                    condTempStream << "DET/MaGeChan: " << convDetNameSortedMC[MaGeChannelNumIterator] << "/" <<MaGeChannelNumIterator;
+                                    string condCanvasString = condTempStream.str();
+                                    string condTempCanvasName = condTempStream.str();
+                                    char const *condCanvasName = condTempCanvasName.c_str();
+                                    TCanvas *cX = new TCanvas(condCanvasName);
+                                    }
 
-                                if(isCurrentQActiveV == 0){
-                                //----------------------------------------- Hit position 3D plot: ------------------------------------
-                                //CANVAS NAMING ITERATION for 3D PLOT:
-                                condTempStream.str(string());
-                                condTempStream << "DET/MaGeChan: " << convDetNameSortedMC[MaGeChannelNumIterator] << "/" <<MaGeChannelNumIterator;
-                                string condCanvasString = condTempStream.str();
-                                string condTempCanvasName = condTempStream.str();
-                                char const *condCanvasName = condTempCanvasName.c_str();
-                                TCanvas *cX = new TCanvas(condCanvasName);
-                                }
+                                    //accurate, no hits outside -- DOESNT WORK FOR HIGHER ORDERS
+                                    //fTree->SetMarkerColor(kGreen);
+                                    //fTree->Draw("hits_zpos:hits_ypos:hits_xpos","hits_idseg == 1");
 
-                                //accurate, no hits outside -- DOESNT WORK FOR HIGHER ORDERS
-                                //fTree->SetMarkerColor(kGreen);
-                                //fTree->Draw("hits_zpos:hits_ypos:hits_xpos","hits_idseg == 1");
-
-                                //NOT accurate
-                                //fTree->Draw("hits_zpos:hits_ypos:hits_xpos","hits_iddet == 1");
-
-
-                                //fTree->Draw("hits_zpos:hits_ypos:hits_xpos",condDet_id);
-                                //DEADLAYER
-                                //fTree->SetMarkerColor(kBlue);
-                                //fTree->Draw("hits_deadlayer_zpos:hits_deadlayer_ypos:hits_deadlayer_xpos","hits_iddet == 1","same");
-                                //fTree->Draw("hits_deadlayer_zpos:hits_deadlayer_ypos:hits_deadlayer_xpos",condDet_id,"same");
-
-                                //DEAD LAYER -RED
-                                if(isCurrentQActiveV == 0){
-
-                                //fTree->SetMarkerColor(kRed);
-                                //fTree->SetMarkerSize(6);
-                                //fTree->Draw("hits_zpos:hits_ypos:hits_xpos",condCut);
-                                //fTree->Draw("hits_zpos:hits_ypos:hits_xpos",condDet_id);
+                                    //NOT accurate
+                                    //fTree->Draw("hits_zpos:hits_ypos:hits_xpos","hits_iddet == 1");
 
 
-                                condTree->SetMarkerColor(kRed);
-                                condTree->SetMarkerStyle(6);
-                                //Draw Deadlayer
-                                condTree->Draw("hits_zpos:hits_ypos:hits_xpos");
-                                condTree->SetMarkerColor(kBlue);
-                                condTree->Draw("hits_zpos:hits_ypos:hits_xpos",condCut,"same");
+                                    //fTree->Draw("hits_zpos:hits_ypos:hits_xpos",condDet_id);
+                                    //DEADLAYER
+                                    //fTree->SetMarkerColor(kBlue);
+                                    //fTree->Draw("hits_deadlayer_zpos:hits_deadlayer_ypos:hits_deadlayer_xpos","hits_iddet == 1","same");
+                                    //fTree->Draw("hits_deadlayer_zpos:hits_deadlayer_ypos:hits_deadlayer_xpos",condDet_id,"same");
 
-                                cout << "**********************************************************************DEADLAYER**************** " << endl;
-                                }
+                                    //DEAD LAYER -RED
+                                    if(isCurrentQActiveV == 0){
 
-                                //ACTIVE VOLUME -GREEN
-                                if(isCurrentQActiveV == 1){
-                                //fTree->SetMarkerColor(kGreen);
-                                //fTree->SetMarkerSize(6);
-                                //fTree->Draw("hits_zpos:hits_ypos:hits_xpos",condCut,"same");
-
-                                condTree->SetMarkerColor(kRed);
-                                condTree->SetMarkerStyle(6);
-                                condTree->SetMarkerColor(kGreen);
-                                condTree->Draw("hits_zpos:hits_ypos:hits_xpos","","same");
-                                condTree->SetMarkerColor(kPink);
-                                condTree->Draw("hits_zpos:hits_ypos:hits_xpos",condCut,"same");
+                                    //fTree->SetMarkerColor(kRed);
+                                    //fTree->SetMarkerSize(6);
+                                    //fTree->Draw("hits_zpos:hits_ypos:hits_xpos",condCut);
+                                    //fTree->Draw("hits_zpos:hits_ypos:hits_xpos",condDet_id);
 
 
-                                cout << "**********************************************************************ACTIVE VOLUME**************** " << endl;
-                                }
+                                    condTree->SetMarkerColor(kRed);
+                                    condTree->SetMarkerStyle(6);
+                                    //Draw Deadlayer
+                                    condTree->Draw("hits_zpos:hits_ypos:hits_xpos");
+                                    condTree->SetMarkerColor(kBlue);
+                                    condTree->Draw("hits_zpos:hits_ypos:hits_xpos",condCut,"same");
 
+                                    cout << "**********************************************************************DEADLAYER**************** " << endl;
+                                    }
+
+                                    //ACTIVE VOLUME -GREEN
+                                    if(isCurrentQActiveV == 1){
+                                    //fTree->SetMarkerColor(kGreen);
+                                    //fTree->SetMarkerSize(6);
+                                    //fTree->Draw("hits_zpos:hits_ypos:hits_xpos",condCut,"same");
+
+                                    condTree->SetMarkerColor(kRed);
+                                    condTree->SetMarkerStyle(6);
+                                    condTree->SetMarkerColor(kGreen);
+                                    condTree->Draw("hits_zpos:hits_ypos:hits_xpos","","same");
+                                    condTree->SetMarkerColor(kPink);
+                                    condTree->Draw("hits_zpos:hits_ypos:hits_xpos",condCut,"same");
+
+
+                                    cout << "**********************************************************************ACTIVE VOLUME**************** " << endl;
+                                    } 
+                                } */
 
 
                                 //-------------------------------- 3D SCATTER PLOTS FINISHED ---------------
 
-                                */
+                                
 
 
                             }
@@ -833,14 +842,14 @@ void print_node(TGeoNode *node, string path, int& MaGeChannelNumIterator, vector
 
         while (TGeoNode *n = (TGeoNode *)next())
         {
-            print_node(n, path, MaGeChannelNumIterator, convDetNameSortedMC, convIsGrooveOnTopSortedMC, convIsBEGeSortedMC, convIsPSSSortedMC, convTaperLengthSortedMC, convTaperWidthSortedMC, convImpurityZSortedMC, convImpurityGradSortedMC, convHVSortedMC, convFCCD, jsonOutputPath, adlOutputPath, siggenOutputPath, jsonOutputFile, siggenOutputFile, adlOutputFile, hitsOutputFile, hitsADLOutputFile, fTree, maxHits, useHits);
+            print_node(n, path, MaGeChannelNumIterator, convDetNameSortedMC, convIsGrooveOnTopSortedMC, convIsBEGeSortedMC, convIsPSSSortedMC, convTaperLengthSortedMC, convTaperWidthSortedMC, convImpurityZSortedMC, convImpurityGradSortedMC, convHVSortedMC, convFCCD, jsonOutputPath, adlOutputPath, siggenOutputPath, jsonOutputFile, siggenOutputFile, adlOutputFile, hitsOutputFile, hitsADLOutputFile, fTree, maxHits, useHits, isVisHitsEnabled, visHitsCond);
         }
 
     }
 }
 
 //Function to be used directly with "root Geoextractor.cxx" terminal command without need to compile. Main function also basically runs this function.
-void Geoextractor(int checkGDML = 0, string InputPath = "", string jsonOutputPath = "./Output/json/", string adlOutputPath = "./Output/adl/", string siggenOutputPath = "./Output/siggen/", string gdmlFilePath = "defaultgdml.gdml", string convFilePath = "detsettings.txt", int maxHits = 1000000000, int useHits = 1) {
+void Geoextractor(int checkGDML = 0, string InputPath = "", string jsonOutputPath = "./Output/json/", string adlOutputPath = "./Output/adl/", string siggenOutputPath = "./Output/siggen/", string gdmlFilePath = "defaultgdml.gdml", string convFilePath = "detsettings.txt", int maxHits = 1000000000, int useHits = 1, int isVisHitsEnabled = 0, string visHitsCond = "") {
 
     cout << "Geoextractor running..." << endl;
 
@@ -894,6 +903,26 @@ void Geoextractor(int checkGDML = 0, string InputPath = "", string jsonOutputPat
             fTree->Add( Form("%s/%s", MC_DIR.c_str(), MC_FileList.at( ifile ).c_str()) );
             cout << "\t " << MC_DIR << "/" << MC_FileList.at( ifile ) << endl;
         }
+
+        //-------------------- 3D SCATTER PLOTS TO CHECK GEOMETRY ------------- Used in VisHits Option
+        if(isVisHitsEnabled == 1){  
+          TApplication app("appKey",0,0);                             
+          fTree->SetMarkerStyle(6);
+    
+          fTree->Draw("hits_zpos:hits_ypos:hits_xpos",visHitsCond.c_str());
+          app.Run();
+
+       }
+
+
+
+
+
+
+
+
+
+
     }
 
 
@@ -1117,7 +1146,7 @@ void Geoextractor(int checkGDML = 0, string InputPath = "", string jsonOutputPat
     //Set counter of channel numbers outside of loop to increase with every iteration
     int MaGeChannelNumIterator = 0;
     print_node(gGeoManager->GetTopNode(), "", MaGeChannelNumIterator, convDetNameSortedMC, convIsGrooveOnTopSortedMC, convIsBEGeSortedMC, convIsPSSSortedMC,
-               convTaperLengthSortedMC, convTaperWidthSortedMC, convImpurityZSortedMC, convImpurityGradSortedMC, convHVSortedMC, convFCCD, jsonOutputPath, adlOutputPath, siggenOutputPath, jsonOutputFile, siggenOutputFile, adlOutputFile, hitsOutputFile, hitsADLOutputFile, fTree, maxHits, useHits);
+               convTaperLengthSortedMC, convTaperWidthSortedMC, convImpurityZSortedMC, convImpurityGradSortedMC, convHVSortedMC, convFCCD, jsonOutputPath, adlOutputPath, siggenOutputPath, jsonOutputFile, siggenOutputFile, adlOutputFile, hitsOutputFile, hitsADLOutputFile, fTree, maxHits, useHits, isVisHitsEnabled, visHitsCond);
 
     end=clock();
     cout << "Time required for execution: "
@@ -1135,25 +1164,28 @@ int main(int argc, char* argv[])
     string siggenOutputPath = "./Output/siggen/";
     string gdmlFilePath = "defaultgdml.gdml";
     string convFilePath = "detsettings.txt";
+    string visHitsCond = "";
     //Maximum of number of hits default value: 100 billion
     int maxHits = 1000000000;
     int useHits = 1;
     int checkGDML = 0;
+    int isVisHitsEnabled = 0;
 
     for (int i = 1; i < argc; i++) {
         std::string arg = argv[i];
         if ((arg == "-h") || (arg == "--help")) {
             cerr << "Options:\n"
                  << "\t-h,--help\t\tShow help message\n"
-                 << "\t-m,--mcdir PATH\tSpecify input path for ROOT files to be merged and used for extraction. Default: MC_DIR shell variable." << endl
-                 << "\t-a,--adl PATH\tSpecify output path for ADL files. Default: ./Output/adl" << endl
-                 << "\t-j,--json PATH\tSpecify output path for JSON files. Default: ./Output/json" << endl
+                 << "\t-m,--mcdir PATH\t\tSpecify input path for ROOT files to be merged and used for extraction. Default: MC_DIR shell variable." << endl
+                 << "\t-a,--adl PATH\t\tSpecify output path for ADL files. Default: ./Output/adl" << endl
+                 << "\t-j,--json PATH\t\tSpecify output path for JSON files. Default: ./Output/json" << endl
                  << "\t-s,--siggen PATH\tSpecify output path for SIGGEN files. Default: ./Output/siggen" << endl
-                 << "\t-g,--gdml PATH\tSpecify path to GDML file. Default: ./defaultgdml.gdml" << endl
+                 << "\t-g,--gdml PATH\t\tSpecify path to GDML file. Default: ./defaultgdml.gdml" << endl
                  << "\t-d,--detsettings PATH\tSpecify path to Detector Settings file. Default: ./detsettings.txt" << endl
                  << "\t-x,--maxhits INT\tLimit amount of hits per detector to be extracted and written to file to a fixed number. Default: No limit." << endl
-                 << "\t-n,--nohits \tSkip all hit extraction, only extract geometry." << endl
-                 << "\t-c,--checkgdml \tVisualise .GDML file with OGL drivers. Best to use: root Geoextractor.cxx+(1)" << endl;
+                 << "\t-v,--vishits STRING\tVisualise hit extraction with condition set by STRING." << endl
+                 << "\t-n,--nohits \t\tSkip all hit extraction, only extract geometry." << endl
+                 << "\t-c,--checkgdml \t\tVisualise .GDML file with OGL drivers. Best to use: root Geoextractor.cxx+(1)" << endl;
             return 0;
         } else if ((arg == "-a") || (arg == "--adl")) {
             if (i + 1 < argc) {
@@ -1194,7 +1226,14 @@ int main(int argc, char* argv[])
                 maxHits = stoi( argv[i] );
                 cout << "Maximum number of hits per detector chosen to be: " << argv[i] << endl;
             } 
-        
+        }  else if ((arg == "-v") || (arg == "--vishits")) {
+            isVisHitsEnabled = 1;
+            cout << "Visualisation of hits enabled. " << endl;
+            if (i + 1 < argc) { 
+                i++;
+                visHitsCond = argv[i];
+                cout << "Selection cut of hits: " << argv[i] << endl;
+            }            
         }  else if ((arg == "-n") || (arg == "--nohits")) {
              useHits = 0;
              cout << "--nohits enabled: Hits are not extracted or written to file. Geometries/Parameters are still extracted & written." << endl << endl;
@@ -1207,7 +1246,7 @@ int main(int argc, char* argv[])
     }
     
     cout << "Running of compiled Geoextractor:" << endl;
-    Geoextractor(checkGDML, InputPath, jsonOutputPath, adlOutputPath, siggenOutputPath, gdmlFilePath, convFilePath, maxHits, useHits);
+    Geoextractor(checkGDML, InputPath, jsonOutputPath, adlOutputPath, siggenOutputPath, gdmlFilePath, convFilePath, maxHits, useHits, isVisHitsEnabled, visHitsCond);
     cout << "End of Geoextractor reached." << endl;
 }
 
