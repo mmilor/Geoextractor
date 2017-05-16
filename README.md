@@ -30,6 +30,8 @@ Installation from github in directory of choice:
 ```
 git clone git@github.com:mmilor/Geoextractor.git
 ```
+If you encounter any problems during installation or usage, please let me know. Try the LNGS Cluster method mentioned in the Exercise at the bottom and see if the problem persists.
+
 ## Usage
 The working directory after installation already contains:
 * GDML file 'gdml.gdml' suitable for GERDA Phase II created with the detector- and matrixfiles:
@@ -200,6 +202,17 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 Learn how to use Geoextractor combined with ADL in this exercise to produce pulse shape simulations from MaGe simulations.
 
 **Preparation**: Install & compile Geoextractor using this README starting from the section **Install**.
+
+**LNGS Cluster Method**: In case there are any problems due to prerequisite program conflicts, test out Geoextractor on the LNGS cluster:
+```
+ssh -XY name@gerda-login.lngs.infn.it
+source /nfs/gerda5/gerda-sw/bin/swmod-env-cpath.sh gerda@dp-v3.0.0
+cd /nfs/gerda2/users/
+enter your user folder
+git clone https://github.com/mmilor/Geoextractor
+cd Geoextractor
+```
+From there you can follow the Exercise directly on the LNGS Cluster.
 
 #### 1.) Extract the GERDA geometry
 First, we will take a look at the GERDA geometry and extract it from the .GDML file. For this exercise we will use the provided .GDML file in the parent directory. (To learn how and why to produce new .GDML files, check out the chapter **Producing New .GDML Files**.)
