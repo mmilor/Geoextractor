@@ -1,9 +1,10 @@
 # Geoextractor
 **An interface to connect MaGe simulations to pulse shape simulations of ADL and SIGGEN.**
 
-Achieved by read-in of MaGe .ROOT files into Geoextractor, resulting in the generation of output files for each detector in the native formats of ADL and SIGGEN. JSON files with all detector and hit information are generated as well. (This is also helpful for programs in the future that need the MaGe geometry extracted.)
+Achieved by read-in of MaGe .ROOT files into Geoextractor, resulting in the generation of output files for each detector in the native formats of ADL, siggen, and JSON files with all detector and hit information.
 
 ## Description
+<img src="https://cloud.githubusercontent.com/assets/8874125/26146179/8599ca30-3aef-11e7-8f77-f027e7628c24.png" width="690" height="208" />
 
 MaGe simulations : .ROOT output into Geoextractor
 * Geoextractor generates all necessary files for ADL and SIGGEN in their native format. 
@@ -60,7 +61,7 @@ Options:
 *	**-g, --gdml PATH**:	Specify path to GDML file. Default: ./defaultgdml.gdml
 *	**-d, --detsettings PATH**:	Specify path to Detector Settings file. Default: ./detsettings.txt
 *	**-x, --maxhits INT**:	Limit amount of hits per detector to be extracted and written to file to a fixed number. Default: No limit.
-* **v, --vishits STRING**: Visualise hit extraction with condition set by STRING. Example to show only events in detector 33: --v hits_iddet==33
+* **-v, --vishits STRING**: Visualise hit extraction with condition set by STRING. Example to show only events in detector 33: --v hits_iddet==33
 *	**-n, --nohits**: 	Skip all hit extraction, only extract geometry.
 * **-c, --checkgdml**: 	Visualise .GDML file with OGL drivers. Best to use: root Geoextractor.cxx+(1)
 *	**-h, --help**:		Show help message
@@ -131,11 +132,17 @@ cd /path/to/MaGe
 ```
 This results in a file 'extractedgdml.gdml' (depending on how the macro was edited) in the MaGe folder. Geoextractor can link to the .gdml file with the command **-g, --gdml PATH**. Another possibility is to rename the defaultfile in Geoextractor folder and copy and rename your new GDML to 'defaultgdml.gdml' to automatically use this file without needing any options.
 
-To visually check the .GDML file, use ROOT CINT with the command (explained in the corresponding section): 
+To visually check the .GDML file, use ROOT CINT with BASH terminal and the command (explained in the corresponding section): 
 ```
 root Geoextractor.cxx+(1)
 ```
 This sets the checkGDML option to true and enables you to look at a OGL rendering of the GDML file.
+<img src="https://cloud.githubusercontent.com/assets/8874125/26146405/5d0198c2-3af0-11e7-852b-6f385b1d4be8.png" width="480" height="480" />
+  <details>
+  <summary>Click here for a close up</summary>
+  <img src="https://cloud.githubusercontent.com/assets/8874125/26146409/5e2bc2d6-3af0-11e7-8d82-0a673cf72e0e.png" width="480" height="480" />
+</details>
+
 
 ## File formatting
 The ADL and SIGGEN file structure for the detector geometries/parameters are given by the individual programs. The JSON formatting is created for Geoextractor and looks as follows (here for GD00A and two hits):
@@ -215,8 +222,18 @@ cd Geoextractor
 From there you can follow the Exercise directly on the LNGS Cluster.
 
 #### 1.) Extract the GERDA geometry
-First, we will take a look at the GERDA geometry and extract it from the .GDML file. For this exercise we will use the provided .GDML file in the parent directory. (To learn how and why to produce new .GDML files, check out the chapter **Producing New .GDML Files**.)
-If we want to extract the GERDA geometry and nothing else, we can invoke Geoextractor in the following way: 
+First, we will take a look at the GERDA geometry and extract it from the .GDML file. For this exercise we will use the provided .GDML file in the parent directory. 
+<details>
+  <summary>Click here for a picture of an OGL Rendering of the provided .GDML</summary>
+  <img src="https://cloud.githubusercontent.com/assets/8874125/26146405/5d0198c2-3af0-11e7-852b-6f385b1d4be8.png" width="480" height="480" />
+  </details>
+<details>
+  <summary>And a close up</summary>
+  <img src="https://cloud.githubusercontent.com/assets/8874125/26146409/5e2bc2d6-3af0-11e7-8d82-0a673cf72e0e.png" width="480" height="480" />
+</details>
+(To learn how and why to produce new .GDML files and visualise them yourself, check out the chapter **Producing New .GDML Files**.)
+
+If we want to extract the GERDA geometry from this GDML and nothing else, we can invoke Geoextractor in the following way: 
 ```
 ./Geoextractor --nohits
 ```
@@ -240,8 +257,6 @@ All this information is then used to create output files stored in the Output di
 These are all the output files which are used then directly in ADL & siggen. In the future other programs can make use of the general extraction in the .json format.
 
 Since the detector geometries are output into native ADL & siggen formats, the fields can be simulated directly with these programs for each detector.
-
-(If you are interested to also visualise the GDML, follow the GDML visualisation chapter in this README.)
 
 Let's move on to simulated events that store energy inside the germanium detector via interactions (hits), how they are simulated with MaGe, and how they can be transferred to pulse shape simulation software (ADL & siggen) via Geoextractor.
 
@@ -271,16 +286,26 @@ In the Geoextractor directory (/Geoextractor/), run Geoextractor to visualise th
 ```
 ./Geoextractor --vishits
 ```
+<details>
+  <summary>Result</summary>
+  <img src="https://cloud.githubusercontent.com/assets/8874125/26147596/57f1cb50-3af4-11e7-8ae6-ebb3cd4d62c0.png" width="696" height="472" />
+</details>
+
 You will see all hits in all 40 GERDA detectors visualised. Let's reduce it to just one detector, for example **detector** with MaGe channel number 33: GD00A. (Remember that for GERDA the data channels and the MaGe channels do not coincide. You can either check the GERDA wiki or the detsettings.txt file to check which channel is which.)
 To show only the hits in **GD00A - detector 33** , use:
 ```
 ./Geoextractor --vishits hits_iddet==33
 ```
-Any string can be used that selects events.
+<details>
+  <summary>Result</summary>
+  <img src="https://cloud.githubusercontent.com/assets/8874125/26147872/2e676e60-3af5-11e7-94e7-9b60cf555ec0.png" width="696" height="472" />
+</details>
+
+Any string that selects events can be used, in the same style as the the Draw() function of ROOT.
 
 #### 4.) Hit extraction with Geoextractor
 Finally, we want to extract the hits and automatically transform them into the detector frames such that we can use them directly in ADL & siggen formats. Call Geoextractor with the following command:
 ```
 ./Geoextractor
 ```
-You notice that for each detector there is additional number output given, expressing the hits_xpos, hits_ypos, hits_zpos transformed to the point contact frame and deposited energy. All this information and more is stored in the .JSON files in the /Geoextractor/Output/json folder (see chapter **File formatting** for an example). This hit position and energy information, together with the automatically extracted detector geometry can be used directly to simulate fields and the induced pulse shapes in ADL & SIGGEN.
+You notice that for each detector there is additional number output given, expressing the hits_xpos, hits_ypos, hits_zpos transformed to the point contact frame and deposited energy. All this information and more is stored in the .JSON files in the /Geoextractor/Output/json folder (see chapter **File formatting** for an example). This hit position and energy information, together with the automatically extracted detector geometry can then be used to simulate the fields and the induced pulse shapes in ADL & SIGGEN.
