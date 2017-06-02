@@ -595,7 +595,45 @@ void print_node(TGeoNode *node, string path, int& MaGeChannelNumIterator, vector
                                     else {
                                         cout << "Writing hit output of " << convDetNameSortedMC[MaGeChannelNumIterator] << " into HITS_DET_" << MaGeChannelNumIterator << ".json" << endl;
                                     }
-                                    //HITS Filepath writing:
+                                    //ROOT HITS OUTPUT filepath and name generation:
+                                    condTempStream.str(string());
+                                    condTempStream << jsonOutputPath;
+                                    condTempStream << "/HITS_DET_";
+                                    if(MaGeChannelNumIterator<10) {
+                                        condTempStream << "0" << MaGeChannelNumIterator;
+                                    }
+                                    else {
+                                        condTempStream << MaGeChannelNumIterator;
+                                    }
+                                    condTempStream << ".root";
+                                    fileContentString = condTempStream.str();
+                                    //ROOT HITS OPEN FILE
+                                    //TFile hfile(fileContentString.c_str(),"RECREATE");
+                                    //TFile hfile("TestROOTtobedeleted.root","RECREATE");
+                                    TFile hfile(fileContentString.c_str(),"recreate");
+                                    // Create a TTree
+                                            TTree *hTree = new TTree("hTree","Tree with hit positions with (0,0,0) at point contact");
+                                            Float_t         cHits_edep[MaxArrayLength];   //[hits_totnum]
+                                            Float_t         cHits_xpos[MaxArrayLength];   //[MaxArrayLength]
+                                            Float_t         cHits_ypos[MaxArrayLength];   //[hits_totnum]
+                                            Float_t         cHits_zpos[MaxArrayLength];   //[hits_totnum]
+                                            Int_t           cHits_iddet[MaxArrayLength];   //[hits_totnum]
+                                           // Float_t         cHits_time[MaxArrayLength];   //[hits_totnum]
+                                           // Int_t           cHits_trackid[MaxArrayLength];   //[hits_totnum]
+                                            Int_t           cHits_trackpdg[MaxArrayLength];   //[hits_totnum]                                            
+                                            hTree->Branch("hits_edep", &cHits_edep);
+                                            hTree->Branch("hits_xpos", &cHits_edep);
+                                            hTree->Branch("hits_ypos", &cHits_edep);
+                                            hTree->Branch("hits_zpos", &cHits_edep);
+                                            hTree->Branch("hits_iddet", &cHits_edep);
+                                            hTree->Branch("hits_trackpdg", &cHits_edep);
+
+
+
+
+
+
+                                    //HITS Filepath stream writing:
                                     condTempStream.str(string());
                                     condTempStream << jsonOutputPath;
                                     condTempStream << "HITS_DET_";
@@ -607,10 +645,11 @@ void print_node(TGeoNode *node, string path, int& MaGeChannelNumIterator, vector
                                     }
                                     condTempStream << ".json";
                                     fileContentString = condTempStream.str();
-                                    //HITS JSON FILE CREATION:
+                                    //HITS JSON FILE CREATION with the stream:
                                     hitsOutputFile.open(fileContentString);
+
+                                    //ADLOutputPath generation for file name
                                     condTempStream.str(string());
-                                    //Add ADLOutputPath
                                     condTempStream << adlOutputPath;
                                     condTempStream << "HITS_DET_";
                                     if(MaGeChannelNumIterator<10) {
@@ -690,6 +729,38 @@ void print_node(TGeoNode *node, string path, int& MaGeChannelNumIterator, vector
                                         if(*hits_zpos <= (master[2] + shape->GetDZ())  &&
                                            *hits_zpos >= (master[2] - shape->GetDZ())  &&
                                            (*hits_xpos - master[0])*(*hits_xpos - master[0]) + (*hits_ypos - master[1])*(*hits_ypos - master[1]) <= (shape->GetDX())*(shape->GetDX())  ) {
+                                            //ROOT FILE OUTPUT FOR HIT POINTS &HITS& Point contact as (0,0,0):
+                                             
+                                            
+                                      
+
+                                            cHits_edep[i] = *hits_edep;  
+                                            cHits_xpos[i] = *hits_xpos;   
+                                            cHits_ypos[i] = *hits_ypos;  
+                                            cHits_zpos[i] = *hits_zpos;   
+                                            cHits_iddet[i] = *hits_iddet;  
+                                            hTree->Fill();
+                                           
+
+
+
+
+
+ // TTree *t1 = new TTree("aTree", "A tree");
+ // float f;
+ // t1->Branch("aBranch", &f);
+ // for (int j = 0; j < 10; j++) {
+ //   f = j+1;
+ //   t1->Fill();
+ // }
+ // t1->Scan();
+ // t1->Write();
+ // t1->Scan();
+ // delete file;
+
+
+
+
                                             //JSON Hit output into files: Point contact as (0,0,0):
                                             hitsContentStream <<
                                                               "            { \"id\": \"" << idcounter << "\", \"eventnumber\": \"" << i
@@ -730,6 +801,11 @@ void print_node(TGeoNode *node, string path, int& MaGeChannelNumIterator, vector
                                     hitsOutputFile << hitsContentString << endl;
                                     hitsADLOutputFile << hitsADLContentString << endl;
                                     //Hit Files close
+                                   // hTree->Scan();
+                                    hTree->Write();
+                                    hfile.Close();
+
+ // t1->Scan();
                                     hitsOutputFile.close();
                                     hitsADLOutputFile.close();
 
