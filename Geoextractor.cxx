@@ -36,7 +36,7 @@ using namespace std;
 
 
 //Function to search through GDML node levels to find nodes matching germanium detectors. Then extract all information about them. This is run iteratively.
-void print_node(TGeoNode *node, string path, int& MaGeChannelNumIterator, vector<string> convDetNameSortedMC, vector<int> convIsGrooveOnTopSortedMC, vector<int> convIsBEGeSortedMC, vector<int> convIsPSSSortedMC, vector<double> convTaperLengthSortedMC, vector<double> convTaperWidthSortedMC, vector<double> convImpurityZSortedMC, vector<double> convImpurityGradSortedMC, vector<int> convHVSortedMC, vector<double> convFCCD, string jsonOutputPath, string adlOutputPath, string siggenOutputPath, ofstream & jsonOutputFile, ofstream & siggenOutputFile, ofstream & adlOutputFile, ofstream & hitsOutputFile, ofstream & hitsADLOutputFile, TChain * fTree, int maxHits, int useHits, int isVisHitsEnabled, string visHitsCond)
+void print_node(TGeoNode *node, string path, int& MaGeChannelNumIterator, vector<string> convDetNameSortedMC, vector<int> convIsGrooveOnTopSortedMC, vector<int> convIsBEGeSortedMC, vector<int> convIsPSSSortedMC, vector<double> convTaperLengthSortedMC, vector<double> convTaperWidthSortedMC, vector<double> convImpurityZSortedMC, vector<double> convImpurityGradSortedMC, vector<int> convHVSortedMC, vector<double> convFCCD, string jsonOutputPath, string adlOutputPath, string siggenOutputPath, ofstream & jsonOutputFile, ofstream & siggenOutputFile, ofstream & adlOutputFile, ofstream & hitsOutputFile, ofstream & hitsADLOutputFile, TChain * fTree, TChain * aTree, int maxHits, int useHits, int isVisHitsEnabled, string visHitsCond)
 {
     string str = "";
     string convString = "debug";
@@ -595,7 +595,47 @@ void print_node(TGeoNode *node, string path, int& MaGeChannelNumIterator, vector
                                     else {
                                         cout << "Writing hit output of " << convDetNameSortedMC[MaGeChannelNumIterator] << " into HITS_DET_" << MaGeChannelNumIterator << ".json" << endl;
                                     }
-                                    //HITS Filepath writing:
+                                    //ROOT HITS OUTPUT filepath and name generation:
+                                    condTempStream.str(string());
+                                    condTempStream << jsonOutputPath;
+                                    condTempStream << "/HITS_DET_";
+                                    if(MaGeChannelNumIterator<10) {
+                                        condTempStream << "0" << MaGeChannelNumIterator;
+                                    }
+                                    else {
+                                        condTempStream << MaGeChannelNumIterator;
+                                    }
+                                    condTempStream << ".root";
+                                    fileContentString = condTempStream.str();
+                                    //ROOT HITS OPEN FILE
+                        
+                                 //   TFile hfile(fileContentString.c_str(),"recreate");
+                                    TFile hfile(fileContentString.c_str(),"RECREATE","Hit positions in cm (0,0,0) at point contact");
+                                    // Create a TTree
+                                            TTree *hTree = new TTree("fTree","Hit positions in cm (0,0,0) at point contact");
+
+
+                                            Float_t         cHits_edep;   //[hits_totnum]
+                                            Float_t         cHits_xpos;   //[MaxArrayLength]
+                                            Float_t         cHits_ypos;   //[hits_totnum]
+                                            Float_t         cHits_zpos;   //[hits_totnum]
+                                            Int_t           cHits_iddet;   //[hits_totnum]
+                                           // Float_t         cHits_time;   //[hits_totnum]
+                                           // Int_t           cHits_trackid;   //[hits_totnum]
+                                            Int_t           cHits_trackpdg;   //[hits_totnum]    
+                                     
+                                            hTree->Branch("hits_edep", &cHits_edep, "edep");
+                                            hTree->Branch("hits_xpos", &cHits_xpos, "xpos");
+                                            hTree->Branch("hits_ypos", &cHits_ypos, "ypos");
+                                            hTree->Branch("hits_zpos", &cHits_zpos, "zpos");
+                                            hTree->Branch("hits_iddet", &cHits_iddet);
+                                            hTree->Branch("hits_trackpdg", &cHits_trackpdg);
+
+
+
+
+
+                                    //HITS Filepath stream writing:
                                     condTempStream.str(string());
                                     condTempStream << jsonOutputPath;
                                     condTempStream << "HITS_DET_";
@@ -607,10 +647,11 @@ void print_node(TGeoNode *node, string path, int& MaGeChannelNumIterator, vector
                                     }
                                     condTempStream << ".json";
                                     fileContentString = condTempStream.str();
-                                    //HITS JSON FILE CREATION:
+                                    //HITS JSON FILE CREATION with the stream:
                                     hitsOutputFile.open(fileContentString);
+
+                                    //ADLOutputPath generation for file name
                                     condTempStream.str(string());
-                                    //Add ADLOutputPath
                                     condTempStream << adlOutputPath;
                                     condTempStream << "HITS_DET_";
                                     if(MaGeChannelNumIterator<10) {
@@ -690,6 +731,21 @@ void print_node(TGeoNode *node, string path, int& MaGeChannelNumIterator, vector
                                         if(*hits_zpos <= (master[2] + shape->GetDZ())  &&
                                            *hits_zpos >= (master[2] - shape->GetDZ())  &&
                                            (*hits_xpos - master[0])*(*hits_xpos - master[0]) + (*hits_ypos - master[1])*(*hits_ypos - master[1]) <= (shape->GetDX())*(shape->GetDX())  ) {
+                                            //ROOT FILE OUTPUT FOR HIT POINTS &HITS& Point contact as (0,0,0):
+                                             
+
+                                            cHits_edep = *hits_edep*1000.  ; 
+                                            cHits_xpos = inverseFrame*(*hits_xpos - master[0])*10.;
+                                            cHits_ypos = inverseFrame*(*hits_ypos - master[1])*10.;
+                                            cHits_zpos = inverseFrame*(*hits_zpos - condPointCZPos)*10.;
+                                            cHits_iddet = *hits_iddet;  
+                                           
+                                            //cout << "cHits_xpos: " << cHits_xpos << " &cHits_xpos: "<< &cHits_xpos << " hits_xpos: " << hits_xpos << " *hits_xpos: " << *hits_xpos << endl;
+                                            hTree->Fill();
+                                           
+
+
+
                                             //JSON Hit output into files: Point contact as (0,0,0):
                                             hitsContentStream <<
                                                               "            { \"id\": \"" << idcounter << "\", \"eventnumber\": \"" << i
@@ -730,6 +786,35 @@ void print_node(TGeoNode *node, string path, int& MaGeChannelNumIterator, vector
                                     hitsOutputFile << hitsContentString << endl;
                                     hitsADLOutputFile << hitsADLContentString << endl;
                                     //Hit Files close
+                                    hfile.Write();
+                                    hfile.Close();
+
+                                    //ROOT HITS TCHAIN ADD
+                                    condTempStream.str(string());
+                                    condTempStream << jsonOutputPath;
+                                    condTempStream << "/HITS_DET_";
+                                    if(MaGeChannelNumIterator<10) {
+                                        condTempStream << "0" << MaGeChannelNumIterator;
+                                    }
+                                    else {
+                                        condTempStream << MaGeChannelNumIterator;
+                                    }
+                                    condTempStream << ".root";
+                                    fileContentString = condTempStream.str();
+                                    aTree->Add(fileContentString.c_str());
+                                    if(MaGeChannelNumIterator+1 == convDetNameSortedMC.size()){
+                                    //ALL FILE CREATION:
+                                    condTempStream.str(string());
+                                    condTempStream << jsonOutputPath;
+                                    condTempStream << "HITS_DET_ALL.root";
+                                    fileContentString = condTempStream.str();
+                                    TFile afile(fileContentString.c_str(),"RECREATE","Hit positions in cm (0,0,0) at point contact");
+                                    aTree->CloneTree(-1,"fast");                                    
+                                    afile.Write();
+                                    afile.Close();                                    
+                                    }
+                                                                        
+
                                     hitsOutputFile.close();
                                     hitsADLOutputFile.close();
 
@@ -842,7 +927,7 @@ void print_node(TGeoNode *node, string path, int& MaGeChannelNumIterator, vector
 
         while (TGeoNode *n = (TGeoNode *)next())
         {
-            print_node(n, path, MaGeChannelNumIterator, convDetNameSortedMC, convIsGrooveOnTopSortedMC, convIsBEGeSortedMC, convIsPSSSortedMC, convTaperLengthSortedMC, convTaperWidthSortedMC, convImpurityZSortedMC, convImpurityGradSortedMC, convHVSortedMC, convFCCD, jsonOutputPath, adlOutputPath, siggenOutputPath, jsonOutputFile, siggenOutputFile, adlOutputFile, hitsOutputFile, hitsADLOutputFile, fTree, maxHits, useHits, isVisHitsEnabled, visHitsCond);
+            print_node(n, path, MaGeChannelNumIterator, convDetNameSortedMC, convIsGrooveOnTopSortedMC, convIsBEGeSortedMC, convIsPSSSortedMC, convTaperLengthSortedMC, convTaperWidthSortedMC, convImpurityZSortedMC, convImpurityGradSortedMC, convHVSortedMC, convFCCD, jsonOutputPath, adlOutputPath, siggenOutputPath, jsonOutputFile, siggenOutputFile, adlOutputFile, hitsOutputFile, hitsADLOutputFile, fTree, aTree, maxHits, useHits, isVisHitsEnabled, visHitsCond);
         }
 
     }
@@ -855,7 +940,8 @@ void Geoextractor(int checkGDML = 0, string InputPath = "", string jsonOutputPat
 
     /////////////////////////////////////////////////////////////////////////
     ////// JOIN ROOT FILES to TChain named fTree IN CHOSEN DIRECTORY ($MC_DIR) TO BE ANALYSED
-    /////////////////////////////////////////////////////////////////////////    
+    /////////////////////////////////////////////////////////////////////////
+    TChain* aTree = new TChain("fTree");    
     TChain* fTree = new TChain("fTree");
     string MC_DIR = "";
     if(useHits == 1)
@@ -1146,7 +1232,7 @@ void Geoextractor(int checkGDML = 0, string InputPath = "", string jsonOutputPat
     //Set counter of channel numbers outside of loop to increase with every iteration
     int MaGeChannelNumIterator = 0;
     print_node(gGeoManager->GetTopNode(), "", MaGeChannelNumIterator, convDetNameSortedMC, convIsGrooveOnTopSortedMC, convIsBEGeSortedMC, convIsPSSSortedMC,
-               convTaperLengthSortedMC, convTaperWidthSortedMC, convImpurityZSortedMC, convImpurityGradSortedMC, convHVSortedMC, convFCCD, jsonOutputPath, adlOutputPath, siggenOutputPath, jsonOutputFile, siggenOutputFile, adlOutputFile, hitsOutputFile, hitsADLOutputFile, fTree, maxHits, useHits, isVisHitsEnabled, visHitsCond);
+               convTaperLengthSortedMC, convTaperWidthSortedMC, convImpurityZSortedMC, convImpurityGradSortedMC, convHVSortedMC, convFCCD, jsonOutputPath, adlOutputPath, siggenOutputPath, jsonOutputFile, siggenOutputFile, adlOutputFile, hitsOutputFile, hitsADLOutputFile, fTree, aTree, maxHits, useHits, isVisHitsEnabled, visHitsCond);
 
     end=clock();
     cout << "Time required for execution: "
