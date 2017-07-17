@@ -1067,7 +1067,7 @@ void Geoextractor(int checkGDML = 0, string InputPath = "", string jsonOutputPat
     vector<double> convFCCD;
 
 
-    int debugInt = -1;
+    unsigned int debugInt = 99999;
 
     convDataChan.push_back(debugInt);           //DataChannel
     convMCChan.push_back(debugInt);              //MaGeChannel
