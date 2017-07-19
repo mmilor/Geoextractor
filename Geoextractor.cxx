@@ -95,7 +95,8 @@ void print_node(TGeoNode *node, string path, int& MaGeChannelNumIterator, vector
                             cout << "Inverted pointcontact coordinates (abs): = " << master[0] << "/"<< master[1] << "/" << master[2] + shape->GetDZ() << endl;
                         }
 
-                        const int MaxArrayLength(5000);
+                        //const int MaxArrayLength(5000);
+                        const int MaxArrayLength(10000);
                         // Declaration of leaf types
                         Int_t           eventnumber;
                         /*Int_t           vertex_totnum;
@@ -610,9 +611,9 @@ void print_node(TGeoNode *node, string path, int& MaGeChannelNumIterator, vector
                                     //ROOT HITS OPEN FILE
                         
                                  //   TFile hfile(fileContentString.c_str(),"recreate");
-                                    TFile hfile(fileContentString.c_str(),"RECREATE","Hit positions in cm (0,0,0) at point contact");
+                                    TFile hfile(fileContentString.c_str(),"RECREATE","Hit positions in mm (0,0,0) at point contact");
                                     // Create a TTree
-                                            TTree *hTree = new TTree("fTree","Hit positions in cm (0,0,0) at point contact");
+                                            TTree *hTree = new TTree("fTree","Hit positions in mm (0,0,0) at point contact");
 
 
                                             Float_t         cHits_edep;   //[hits_totnum]
@@ -628,8 +629,8 @@ void print_node(TGeoNode *node, string path, int& MaGeChannelNumIterator, vector
                                             hTree->Branch("hits_xpos", &cHits_xpos, "xpos");
                                             hTree->Branch("hits_ypos", &cHits_ypos, "ypos");
                                             hTree->Branch("hits_zpos", &cHits_zpos, "zpos");
-                                            hTree->Branch("hits_iddet", &cHits_iddet);
-                                            hTree->Branch("hits_trackpdg", &cHits_trackpdg);
+                                            hTree->Branch("hits_iddet", &cHits_iddet, "iddet");
+                                            hTree->Branch("hits_trackpdg", &cHits_trackpdg, "trackpdg");
 
 
 
@@ -808,7 +809,7 @@ void print_node(TGeoNode *node, string path, int& MaGeChannelNumIterator, vector
                                     condTempStream << jsonOutputPath;
                                     condTempStream << "HITS_DET_ALL.root";
                                     fileContentString = condTempStream.str();
-                                    TFile afile(fileContentString.c_str(),"RECREATE","Hit positions in cm (0,0,0) at point contact");
+                                    TFile afile(fileContentString.c_str(),"RECREATE","Hit positions in mm (0,0,0) at point contact");
                                     aTree->CloneTree(-1,"fast");                                    
                                     afile.Write();
                                     afile.Close();                                    
