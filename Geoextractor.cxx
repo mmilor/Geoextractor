@@ -62,11 +62,15 @@ void print_node(TGeoNode *node, string path, unsigned int& MaGeChannelNumIterato
                     if(convIsGrooveOnTopSortedMC[MaGeChannelNumIterator] == 1) {
                         grooveOnTop = 1.;
                     };
-                    int isCurrentQActiveV = 0;
-                    if (convString.find("Active") != string::npos)
+                    int isCurrentQActiveV = 1;
+                    //Check if Volume name contains the term "Dead" and if so change to Deadlayer Queue
+                    if (convString.find("Dead") != string::npos)
+                    {
+                        isCurrentQActiveV = 0;
+                    }
+                    if (isCurrentQActiveV == 1)
                     {
                         cout << "Detector / MaGechannel: " << convDetNameSortedMC[MaGeChannelNumIterator] << " / " << MaGeChannelNumIterator << endl;
-                        isCurrentQActiveV = 1;
                     }
                     cout << "Node: " << node_name << endl;
                     //cout << "PATH: " << path << endl;
