@@ -36,7 +36,7 @@ using namespace std;
 
 
 //Function to search through GDML node levels to find nodes matching germanium detectors. Then extract all information about them. This is run iteratively.
-void print_node(TGeoNode *node, string path, int& MaGeChannelNumIterator, vector<string> convDetNameSortedMC, vector<int> convIsGrooveOnTopSortedMC, vector<int> convIsBEGeSortedMC, vector<int> convIsPSSSortedMC, vector<double> convTaperLengthSortedMC, vector<double> convTaperWidthSortedMC, vector<double> convImpurityZSortedMC, vector<double> convImpurityGradSortedMC, vector<int> convHVSortedMC, vector<double> convFCCD, string jsonOutputPath, string adlOutputPath, string siggenOutputPath, ofstream & jsonOutputFile, ofstream & siggenOutputFile, ofstream & adlOutputFile, ofstream & hitsOutputFile, ofstream & hitsADLOutputFile, TChain * fTree, TChain * aTree, int maxHits, int useHits, int isVisHitsEnabled, string visHitsCond)
+void print_node(TGeoNode *node, string path, unsigned int& MaGeChannelNumIterator, vector<string> convDetNameSortedMC, vector<int> convIsGrooveOnTopSortedMC, vector<int> convIsBEGeSortedMC, vector<int> convIsPSSSortedMC, vector<double> convTaperLengthSortedMC, vector<double> convTaperWidthSortedMC, vector<double> convImpurityZSortedMC, vector<double> convImpurityGradSortedMC, vector<int> convHVSortedMC, vector<double> convFCCD, string jsonOutputPath, string adlOutputPath, string siggenOutputPath, ofstream & jsonOutputFile, ofstream & siggenOutputFile, ofstream & adlOutputFile, ofstream & hitsOutputFile, ofstream & hitsADLOutputFile, TChain * fTree, TChain * aTree, int maxHits, int useHits, int isVisHitsEnabled, string visHitsCond)
 {
     string str = "";
     string convString = "debug";
@@ -115,15 +115,15 @@ void print_node(TGeoNode *node, string path, int& MaGeChannelNumIterator, vector
                         Float_t         nuclei_baryonnumber;
                         Float_t         nuclei_charge;*/
                         Int_t           hits_totnum[MaxArrayLength];
-                        Float_t         hits_tote; 
+                        //Float_t         hits_tote; 
                         Float_t         hits_edep[MaxArrayLength];   //[hits_totnum]
                         Float_t         hits_xpos[MaxArrayLength];   //[MaxArrayLength]
                         Float_t         hits_ypos[MaxArrayLength];   //[hits_totnum]
                         Float_t         hits_zpos[MaxArrayLength];   //[hits_totnum]
                         Int_t           hits_iddet[MaxArrayLength];   //[hits_totnum]
                         //Int_t           hits_idseg[MaxArrayLength];   //[hits_totnum]
-                        Float_t         hits_time[MaxArrayLength];   //[hits_totnum]
-                        Int_t           hits_trackid[MaxArrayLength];   //[hits_totnum]
+                        //Float_t         hits_time[MaxArrayLength];   //[hits_totnum]
+                        //Int_t           hits_trackid[MaxArrayLength];   //[hits_totnum]
                         Int_t           hits_trackpdg[MaxArrayLength];   //[hits_totnum]
                         /*Int_t           hits_passivation_totnum;
                         Float_t         hits_passivation_tote;
@@ -984,7 +984,7 @@ void Geoextractor(int checkGDML = 0, string InputPath = "", string jsonOutputPat
 
         cout << "Adding all Monte Carlo .ROOT files from MC_DIR directory: " << endl;
 
-        for(int ifile = 0; ifile < MC_FileList.size(); ifile++)
+        for(unsigned int ifile = 0; ifile < MC_FileList.size(); ifile++)
         {
             fTree->Add( Form("%s/%s", MC_DIR.c_str(), MC_FileList.at( ifile ).c_str()) );
             cout << "\t " << MC_DIR << "/" << MC_FileList.at( ifile ) << endl;
@@ -1048,7 +1048,7 @@ void Geoextractor(int checkGDML = 0, string InputPath = "", string jsonOutputPat
     vector<string> convDetNameSortedData;
     vector<string> convDetNameSortedMC;
     vector<int> convDataChan;
-    vector<int> convMCChan;
+    vector<unsigned int> convMCChan;
     vector<int> convIsGrooveOnTopSortedData;
     vector<int> convIsGrooveOnTopSortedMC;
     vector<int> convIsBEGeSortedData;
@@ -1067,7 +1067,7 @@ void Geoextractor(int checkGDML = 0, string InputPath = "", string jsonOutputPat
     vector<double> convFCCD;
 
 
-    int debugInt = -1;
+    unsigned int debugInt = 99999;
 
     convDataChan.push_back(debugInt);           //DataChannel
     convMCChan.push_back(debugInt);              //MaGeChannel
@@ -1095,7 +1095,7 @@ void Geoextractor(int checkGDML = 0, string InputPath = "", string jsonOutputPat
 
     convFCCD.push_back(debugInt);
 
-    int convIterator = 0;
+    unsigned int convIterator = 0;
     ifstream file(convFilePath, std::ios::in);
     //Generate Vectors
     if( !file )
@@ -1230,7 +1230,7 @@ void Geoextractor(int checkGDML = 0, string InputPath = "", string jsonOutputPat
     start = clock();
     
     //Set counter of channel numbers outside of loop to increase with every iteration
-    int MaGeChannelNumIterator = 0;
+    unsigned int MaGeChannelNumIterator = 0;
     print_node(gGeoManager->GetTopNode(), "", MaGeChannelNumIterator, convDetNameSortedMC, convIsGrooveOnTopSortedMC, convIsBEGeSortedMC, convIsPSSSortedMC,
                convTaperLengthSortedMC, convTaperWidthSortedMC, convImpurityZSortedMC, convImpurityGradSortedMC, convHVSortedMC, convFCCD, jsonOutputPath, adlOutputPath, siggenOutputPath, jsonOutputFile, siggenOutputFile, adlOutputFile, hitsOutputFile, hitsADLOutputFile, fTree, aTree, maxHits, useHits, isVisHitsEnabled, visHitsCond);
 
