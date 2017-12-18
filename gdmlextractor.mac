@@ -21,8 +21,8 @@
 
 ### Geometry and Matrix files ###
 ### Edit these to fit your .GDML extraction ###
-/MG/geometry/detector/geometryfile geometry_PhaseII_FCCD_growth.dat
-/MG/geometry/detector/matrixfile matrix_phase_ii_StatusDec2015_pos_vis.dat
+/MG/geometry/detector/geometryfile geometry_PhaseII_BEGeFCCDgrowth_CoaxPhaseI.dat
+/MG/geometry/detector/matrixfile matrix_phase_ii_StatusDec2015_pos.dat
 
 ###Additional commands ###
 /MG/geometry/general/constructsupport true

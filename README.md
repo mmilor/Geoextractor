@@ -36,8 +36,8 @@ If you encounter any problems during installation or usage, please let me know. 
 ## Usage
 The working directory after installation already contains:
 * GDML file 'gdml.gdml' suitable for GERDA Phase II created with the detector- and matrixfiles:
-  * geometry_PhaseII_FCCD_growth.dat
-  * matrix_phase_ii_StatusDec2015_pos_vis.dat
+  * geometry_PhaseII_BEGeFCCDgrowth_CoaxPhaseI.dat
+  * matrix_phase_ii_StatusDec2015_pos.dat
   * both found here: https://github.com/mppmu/MaGe/tree/GERDAphaseII/gerdageometry
 * 'detsettings.txt' file that contains additional information about the GERDA Phase II detectors. Any upgrade with addition channels, change of HV etc. means that this file needs to be edited, but Geoextractor does not need to be recompiled.
 
